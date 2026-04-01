@@ -2,8 +2,10 @@ from fastapi import FastAPI
 from app.db.init_db import get_db
 
 from app.routes import auth
+from app.routes import task
 
 app = FastAPI(title="Task Management Backend")
+
 
 @app.on_event("startup")
 def on_startup():
@@ -16,3 +18,4 @@ def root():
 
 # use router
 app.include_router(auth.router)
+app.include_router(task.router)

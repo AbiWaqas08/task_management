@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import session
+from sqlalchemy.orm import Session
+from fastapi.security import OAuth2PasswordBearer
 
 from app.db.init_db import get_db
 from app.models.user import User
@@ -40,7 +41,7 @@ register api:
         return user
 '''
 @router.post("/register")
-def register(user: UserCreate, db: session = Depends(get_db)):
+def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -70,7 +71,7 @@ login api:
 
 '''
 @router.post("/login")
-def login(user: UserLogin, db: session = Depends(get_db)):
+def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid Credentials")
@@ -78,6 +79,20 @@ def login(user: UserLogin, db: session = Depends(get_db)):
     return {"access token" : token, "token type" : "bearer"}
 
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    from app.routes.auth import verify_access_token  # your JWT token verification function
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    payload = verify_access_token(token, credentials_exception)
+    user = db.query(User).filter(User.id == payload.user_id).first()
+    if user is None:
+        raise credentials_exception
+    return user
 
 
 @router.get("/test")
