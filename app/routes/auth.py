@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import session
 
-from app.db.init_db import init_db
+from app.db.init_db import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserLogin, UserOut
 from app.auth import create_access_token
@@ -17,6 +17,7 @@ function to convert password
 into hash password
 '''
 def get_password_hash(password):
+    password = password[:72]
     return pwd_context.hash(password)
 
 '''
@@ -38,16 +39,25 @@ register api:
         refresh
         return user
 '''
-@router.post("/register", response_model=UserOut)
-def register(user: UserCreate, db: session = Depends(init_db)):
+@router.post("/register")
+def register(user: UserCreate, db: session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Email Already Registered")
+        raise HTTPException(status_code=400, detail="Email already registered")
+
     hashed_password = get_password_hash(user.password)
-    new_user = User(**user.dict(), password= hashed_password)
+
+    new_user = User(
+        name=user.name,
+        email=user.email,
+        password=hashed_password,
+        role=user.role
+    )
+
     db.add(new_user)
     db.commit()
-    db.refresh()
+    db.refresh(new_user)
+
     return new_user
 
 '''
@@ -60,7 +70,7 @@ login api:
 
 '''
 @router.post("/login")
-def login(user: UserLogin, db: session = Depends(init_db)):
+def login(user: UserLogin, db: session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid Credentials")
