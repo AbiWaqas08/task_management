@@ -32,40 +32,47 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db), current_user: U
 # -----------------------------
 @router.get("/", response_model=List[TaskOut])
 def get_tasks(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    tasks = db.query(Task).all()
-    return tasks
-
+    if current_user.role == "admin":
+        return db.query(Task).all()
+    else:
+        return db.query(Task).filter(
+            (Task.created_by == current_user.id) |
+            (Task.assigned_to == current_user.id)
+        ).all()
 # -----------------------------
 # Get Single Task by ID
 # -----------------------------
 @router.get("/{task_id}", response_model=TaskOut)
 def get_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     task = db.query(Task).filter(Task.id == task_id).first()
+
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    return task
 
+    if current_user.role != "admin":
+        if task.created_by != current_user.id and task.assigned_to != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized")
+
+    return task
 # -----------------------------
 # Update Task
 # -----------------------------
 @router.put("/{task_id}", response_model=TaskOut)
 def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     task = db.query(Task).filter(Task.id == task_id).first()
+
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    # Update fields
-    if task_update.title:
-        task.title = task_update.title
-    if task_update.description:
-        task.description = task_update.description
-    if task_update.status:
-        task.status = task_update.status
-    if task_update.assigned_to:
-        task.assigned_to = task_update.assigned_to
+    if current_user.role != "admin" and task.created_by != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    for key, value in task_update.dict(exclude_unset=True).items():
+        setattr(task, key, value)
 
     db.commit()
     db.refresh(task)
+
     return task
 
 # -----------------------------
@@ -74,8 +81,14 @@ def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get
 @router.delete("/{task_id}")
 def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     task = db.query(Task).filter(Task.id == task_id).first()
+
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+
+    if current_user.role != "admin" and task.created_by != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     db.delete(task)
     db.commit()
+
     return {"detail": "Task deleted successfully"}
