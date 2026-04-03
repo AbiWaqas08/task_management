@@ -16,7 +16,7 @@ class UserOut(BaseModel):
     role : str
 
     class config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserLogin(BaseModel):
