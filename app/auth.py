@@ -1,7 +1,11 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from dotenv import load_dotenv
-
+from jose import jwt, JWTError
+from fastapi import HTTPException, status
+from app.models.user import User
+from app.db.init_db import get_db
+from sqlalchemy.orm import Session
 import os
 
 # load .env file
@@ -19,7 +23,4 @@ def create_access_token(data: dict):
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     to_encode.update({"exp": expire})
-
-    encode_jwt  = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-    return encode_jwt
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

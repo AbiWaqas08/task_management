@@ -26,6 +26,14 @@ app.include_router(auth.router)
 app.include_router(task.router)
 app.include_router(comment.router)
 
+
+# ----------------------
+# Enable CORS
+# ----------------------
+origins = [
+    "http://localhost:5173",  # your frontend
+    "http://127.0.0.1:5173",
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # or your frontend URL
