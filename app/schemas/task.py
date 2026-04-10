@@ -19,10 +19,10 @@ class TaskCreate(TaskBase):
 
 # update task 
 class TaskUpdate(BaseModel):
-    title: Optional[str]
-    description: Optional[str]
-    status: Optional[TaskStatus]
-    assigned_to: Optional[int]
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[TaskStatus] = None
+    assigned_to: Optional[int] = None
 
 class TaskOut(TaskBase):
     id: int
