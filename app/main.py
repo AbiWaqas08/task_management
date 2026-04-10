@@ -3,7 +3,7 @@ from app.db.init_db import get_db
 
 from app.routes import auth
 from app.routes import task
-from app.routes import comment
+
 
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,7 +24,7 @@ def root():
 # use router
 app.include_router(auth.router)
 app.include_router(task.router)
-app.include_router(comment.router)
+
 
 
 # ----------------------

@@ -1,5 +1,5 @@
 from app.db.session import engine, Base
-from app.models import user, task, comment
+from app.models import user, task
 from sqlalchemy.orm import sessionmaker
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
