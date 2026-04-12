@@ -66,27 +66,7 @@ A full-stack **Task Management System** built using modern technologies. It supp
 - JWT Authentication
 
 ### Database
-- SQLite / PostgreSQL
-
----
-
-## 📁 Project Structure
-
-```
-
-project/
-│
-├── backend/
-│   ├── app/
-│   ├── main.py
-│   ├── requirements.txt
-│
-├── frontend/
-│   ├── src/
-│   ├── package.json
-│
-
-````
+- mySQL
 
 ---
 
@@ -116,7 +96,7 @@ venv\\Scripts\\activate       # Windows
 pip install -r requirements.txt
 
 # Run server
-uvicorn main:app --reload
+python run.py
 ```
 
 ---
