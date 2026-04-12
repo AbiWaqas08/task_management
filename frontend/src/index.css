@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+
+
+@theme {
+  /* Brand Colors */
+  --color-primary: #ef4444;     /* Blue (trust, dashboard standard) */
+  --color-secondary: #7c3aed;   /* Soft violet accent */
+
+  /* Backgrounds */
+  --color-bg: #f9fafb;          /* light gray */
+  --color-surface: #ffffff;     /* cards */
+
+  /* Text */
+  --color-text-primary: #111827;   /* dark */
+  --color-text-secondary: #6b7280; /* muted */
+
+  /* Borders */
+  --color-border: #e5e7eb;
+
+  /* Status Colors */
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+
+  /* Hover States */
+  --color-primary-hover: #dc2626;
+  --color-secondary-hover: #6d28d9;
+}
+
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
